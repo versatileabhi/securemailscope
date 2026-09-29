@@ -1,0 +1,14 @@
+# SecureMailScope — Example Logging Configuration
+# This file is an example template and is NOT loaded in Phase 0.
+# No TOML-based logging loader is implemented in Phase 0.
+
+[logging]
+level = "INFO"
+format = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+write_to_file = false
+log_directory = "runtime/logs"
+
+# Security & Privacy Logging Constraints:
+# - Remote logging or telemetry is strictly prohibited.
+# - All logs must remain strictly on the local filesystem.
+# - Raw PCAP payloads, credentials, private keys, and sensitive email content must never be logged.

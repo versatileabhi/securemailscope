@@ -1,0 +1,10 @@
+# SecureMailScope — Development dependencies
+# Install with: pip install -r requirements-dev.txt
+# Or install the package with dev extras: pip install -e .[dev]
+#
+# These dependencies are for development, testing, and linting only.
+# The production package has no runtime dependencies in Phase 0.
+pytest>=7.4
+pytest-cov>=4.1
+ruff>=0.4
+mypy>=1.8

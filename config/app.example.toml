@@ -1,0 +1,36 @@
+# SecureMailScope — Example Application Configuration
+# This file is an example template and is NOT loaded in Phase 0.
+# Copy to a local runtime configuration file if customizing settings in future phases.
+
+[application]
+name = "SecureMailScope"
+version = "0.1.0"
+analysis_mode = "offline"
+
+[storage]
+runtime_directory = "runtime"
+retain_job_artifacts = false
+
+[analysis]
+max_upload_size_mb = 100
+parser_timeout_seconds = 120
+# allow_network_access must remain false for the offline-first core workflow.
+allow_network_access = false
+
+[zeek]
+# Zeek integration is planned for Phase 2+ and is NOT implemented in Phase 0.
+enabled = false
+binary_path = "zeek"
+output_format = "json"
+
+[reporting]
+# Reporting components (JSON, HTML, PDF) are planned for Phase 8 and are NOT implemented in Phase 0.
+json_enabled = false
+html_enabled = false
+pdf_enabled = false
+
+[dashboard]
+# Local dashboard (Flask) is planned for Phase 9 and is NOT implemented in Phase 0.
+enabled = false
+host = "127.0.0.1"
+port = 5000
