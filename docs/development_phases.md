@@ -104,13 +104,23 @@
 **Inputs:** Canonical session records from Phase 3.
 
 **Outputs:**
-- Mail protocol observations: STARTTLS presence, TLS version, cipher suite, certificate fields.
-- Coverage state for each observation.
+- Neutral, structured observation records per session: `SmtpObservation`, `StarttlsObservation`, `TlsObservation`, `CertificateObservation`, `ImapObservation`, `Pop3Observation`.
+- Coverage state for each session (`full`, `partial`, `insufficient`).
+- Observable placeholder records for IMAP and POP3 (`unsupported_by_current_input`).
 
 **Acceptance Criteria:**
-- Observations correctly reflect Zeek log data.
-- Absent fields produce `not-observable` coverage state.
+- Observations correctly reflect Zeek log data without making security judgments.
+- Absent fields produce explicit `unavailable` or `not_applicable` state; no silent gaps.
+- `smtp.tls` is exposed as a neutral flag only; no STARTTLS transcript claim is made.
+- Server certificate chain order is controlled by `ssl.cert_chain_fuids`; client certs are not mixed in.
 - Pytest tests cover extraction from synthetic session records.
+
+**Status:** Complete (Verified: 130 tests pass, ruff clean, pure in-memory extraction implemented).
+
+Verification notes:
+- All tests are unit/fixture tests; no real Zeek binary, real PCAP, SMTP/IMAP/POP3 integration, or live-capture validation has been performed.
+- IMAP and POP3 log ingestion are not implemented; Phase 4 reports both as `unsupported_by_current_input`.
+- No detection rules, risk scores, verdicts, ML, reporting, dashboard, API, or database are implemented in Phase 4.
 
 ---
 

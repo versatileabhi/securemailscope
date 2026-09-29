@@ -87,13 +87,13 @@ def test_status_contains_ml_not_implemented() -> None:
 
 
 def test_status_contains_current_phase() -> None:
-    """Status output must contain 'Current Phase: 3'."""
+    """Status output must contain 'Current Phase: 4'."""
     result = subprocess.run(
         [sys.executable, "-m", "securemailscope", "status"],
         capture_output=True,
         text=True,
     )
-    assert "Current Phase: 3" in result.stdout
+    assert "Current Phase: 4" in result.stdout
 
 
 def test_main_status_returns_zero() -> None:

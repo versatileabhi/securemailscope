@@ -7,7 +7,7 @@
 - **Primary telemetry engine:** Zeek (planned, Phase 2+).
 - **Primary language:** Python 3.11+.
 - **Deployment model:** Local/offline only.
-- **Current phase:** Phase 3.
+- **Current phase:** Phase 4.
 - **Current status:** Complete.
 
 ## Non-Negotiable Architecture Rules
@@ -56,24 +56,42 @@
   - [x] Path confinement via `ensure_within_runtime` with `UnsafePathError`
   - [x] Lossless JSON serialization/deserialization (`to_dict`, `to_json`, `from_dict`)
   - [x] Full Phase 3 test suite passing (99 total tests across project) — 34 new Phase 3 tests
+- [x] Phase 4 complete: SMTP/IMAP/POP3, STARTTLS, TLS, and Certificate Observation Extraction
+  - [x] Pure in-memory extraction function (`extract_observations`) accepting `list[CanonicalSession]` or `CorrelationResult`
+  - [x] Structured observation dataclass models: `SessionObservation`, `ObservationResult`, `SmtpObservation`, `StarttlsObservation`, `TlsObservation`, `CertificateObservation`, `ImapObservation`, `Pop3Observation`
+  - [x] Transport context classification: `smtp_tls_flagged`, `correlated_tls`, `implicit_tls_context`, `cleartext_smtp_observed`, `tls_status_unavailable`, `not_applicable`
+  - [x] `smtp.tls` exposed only as `smtp_tls_flag`/`smtp_tls_flagged`; never claimed as proof of a STARTTLS command exchange
+  - [x] Server certificate chain order controlled by `ssl.cert_chain_fuids`; `session.certificates` list order does not override it
+  - [x] Missing chain FUIDs produce observable `record_available=False` stubs with non-fatal warnings
+  - [x] Unlinked certificate records retained in `unlinked_certificates` (`in_server_chain=False`); not mixed into server chain
+  - [x] `client_cert_chain_fuids` preserved on `TlsObservation`; never mixed into `server_certificates`
+  - [x] Deterministic fallback certificate ordering by FUID when `ssl.cert_chain_fuids` is absent; explicitly marked unconfirmed
+  - [x] IMAP and POP3 report `unsupported_by_current_input` — no fake telemetry or invented readers
+  - [x] Extraction is pure: no filesystem I/O, no subprocesses, no network calls, no input mutation
+  - [x] Deterministic output sort by `(ts or 0.0, uid)` ascending
+  - [x] Full Phase 4 test suite passing (130 total tests across project) — 31 new Phase 4 tests
+  - [x] Verified: unit/fixture tests only; no real Zeek binary, real PCAP, or live-capture integration test performed
 
 ## Current Work
 
-- **Active task:** None. Phase 3 implementation and verification are complete.
-- **Phase 3 status:** All acceptance criteria met. Unit tests pass with 100% clean linter.
-- **Remaining future work:** Phase 4 protocol observation extraction (SMTP, IMAP, POP3, TLS, and certificates).
+- **Active task:** None. Phase 4 implementation and verification are complete.
+- **Phase 4 status:** All acceptance criteria met. 130 tests pass; Ruff passes.
+- **Remaining future work:** Phase 5 — Deterministic RFC/Policy Rule Engine (not started).
 - **Blockers:** None.
 - **Decisions made:**
-  - Standard library `dataclass` used for all Phase 3 models.
+  - Standard library `dataclass` used for all Phase 3 and Phase 4 models.
   - Non-raising log reader returns `(records, warnings)` tuple.
   - SmtpEnrichment maps Zeek `"from"` field to Python `from_`, emitted back as `"from"` in JSON.
   - Certificate join requires `ssl.cert_chain_fuids → x509.fuid`; direct `conn.uid → x509` is never performed.
-  - Sessions deterministically sorted by `(ts or 0.0, uid)` ascending.
-  - Absolute filesystem paths excluded from all exported session records.
+  - Sessions and observations deterministically sorted by `(ts or 0.0, uid)` ascending.
+  - Absolute filesystem paths excluded from all exported session and observation records.
+  - `smtp.tls` is exposed as a neutral flag only; no STARTTLS transcript evidence is captured or claimed.
+  - `ssl.cert_chain_fuids` is the authoritative server certificate chain order; `session.certificates` list order is not used for ordering.
+  - IMAP and POP3 remain unsupported by the Phase 3 log reader; Phase 4 documents this truthfully without inventing telemetry.
 
 ## Next Allowed Task
 
-Await explicit approval before starting **Phase 4** — SMTP/IMAP/POP3, STARTTLS, TLS, and Certificate Observation Extraction.
+Await explicit approval before starting **Phase 5**.
 
 ## Commands to Verify Current State
 
@@ -85,10 +103,10 @@ python -m securemailscope --version
 # Output: SecureMailScope 0.1.0 (Exit code: 0)
 
 python -m securemailscope status
-# Output: offline mode, all components not implemented (Exit code: 0)
+# Output: Current Phase: 4; Analysis Mode: offline; all unimplemented components shown (Exit code: 0)
 
 python -m pytest
-# Output: 99 passed in 3.14s (Exit code: 0)
+# Output: 130 passed in 3.19s (Exit code: 0)
 
 python -m ruff check .
 # Output: All checks passed! (Exit code: 0)
@@ -102,6 +120,12 @@ python -m ruff check .
 - X.509 certificate records are associated via `ssl.cert_chain_fuids → x509.fuid`; direct `conn.uid → x509` association is not available in standard Zeek output.
 - `smtp.log` and `ssl.log` enrichment is optional; absent logs produce `None` enrichment fields, not errors.
 - Phase 3 does not parse PCAP files or invoke Zeek; it reads existing log output only.
+- Phase 4 is verified by unit/fixture tests only; no real Zeek installation, real PCAP, SMTP/IMAP/POP3 integration, or live-capture validation has been performed.
+- IMAP and POP3 log ingestion (`imap.log`, `pop3.log`) are not implemented in Phase 3; Phase 4 IMAP/POP3 observations are permanently `unsupported_by_current_input` until a future phase adds readers.
+- `smtp.tls` is exposed as a neutral normalized flag only (`smtp_tls_flag`); it does not confirm that a STARTTLS command exchange occurred, and no STARTTLS transcript evidence is extracted.
+- TLS/cipher/protocol version weakness evaluation is not implemented; Phase 4 records negotiated parameters neutrally without grading or labeling them.
+- Certificate trust, expiration, hostname matching, self-signing, and cryptographic weakness are not evaluated; Phase 4 records certificate fields neutrally.
+- No detection rules, risk scores, verdicts, ML, reporting, dashboard, API, or database exist in any phase through Phase 4.
 - No empirical performance claims or benchmark numbers.
 
 ## Handoff Instructions
@@ -121,3 +145,4 @@ python -m ruff check .
 | 2026-09-29 | 1 | Local capture validation, chunked SHA-256, safe staging, and evidence metadata generation | pytest (48 passed); ruff check (passed); CLI ok | Complete |
 | 2026-09-29 | 2 | Finalized Phase 2 Zeek availability check and offline runner after interrupted WIP checkpoint | pytest (65 passed); ruff check (passed) | Complete |
 | 2026-09-29 | 3 | Zeek JSON-log readers, canonical session schema, and correlator pipeline | pytest (99 passed); ruff check (passed); CLI ok | Complete |
+| 2026-09-30 | 4 | Finalized Phase 4 protocol and TLS observation extraction after implementation review | pytest (130 passed); ruff check (passed) | Complete |
