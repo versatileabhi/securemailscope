@@ -2,33 +2,29 @@
 
 **AI-Assisted Cryptographic Security Posture Assessment for Secure Email Communications**
 
-> **Current State: Phase 1 — Local Input Validation & SHA-256 Evidence Hashing.**
+> **Current State: Phase 2 — Zeek Availability Check & Offline Runner.**
 
 ## What This Is
 
 SecureMailScope is an offline, passive, evidence-linked cryptographic security posture assessment tool for SMTP, IMAP, and POP3 traffic captured in PCAP/PCAPNG files.
 
-### What Is Implemented (Phase 1)
+### What Is Implemented
 
-- Local candidate file validation (`.pcap`, `.pcapng` case-insensitive, non-empty, path safety, and file size limits).
-- Chunked SHA-256 evidence hashing without whole-file memory loading.
-- Collision-resistant unique job ID generation (`job_YYYYMMDDTHHMMSSZ_<uuid>`).
-- Safe local staging copy into `runtime/uploads/<job_id>/` with source-to-staged hash integrity verification.
-- Evidence metadata record generation and atomic JSON write into `runtime/jobs/<job_id>/metadata.json`.
+- **Phase 1 (Input Validation & Hashing):** Local candidate file validation (`.pcap`, `.pcapng` case-insensitive, non-empty, path safety, and file size limits), chunked SHA-256 evidence hashing, safe local staging in `runtime/uploads/<job_id>/`, and atomic metadata JSON generation (`metadata.json`).
+- **Phase 2 (Zeek Discovery & Offline Runner):** Local Zeek discovery, safe `zeek --version` validation, offline-only command construction (`zeek -r <pcap> Log::default_logdir=<dir>`), per-job isolated Zeek log directory (`runtime/zeek_logs/<job_id>/`), execution timeout/non-zero/unavailable structured handling (`ZeekRunResult`), and strict no-log-parsing boundary.
 
 ## What Is NOT Implemented Yet
 
 The following features are planned for future phases and are **not present** in the current codebase:
 
-- Internal PCAP/PCAPNG frame parsing or packet inspection
-- Zeek integration or offline runner (Phase 2)
-- Protocol extraction (SMTP, IMAP, POP3, STARTTLS, TLS, x509) (Phase 3–4)
+- Zeek JSON log parsing (conn.log, ssl.log, x509.log, smtp.log, etc.) (Phase 3)
+- Protocol observation extraction (SMTP, IMAP, POP3, STARTTLS, TLS, X.509 certificates) (Phase 4)
 - Deterministic RFC/policy rule engine (Phase 5)
 - Cryptographic posture scoring (Phase 6)
 - ML anomaly ranking (Phase 7)
 - JSON, HTML, or PDF report generation (Phase 8)
 - Local dashboard (Flask) (Phase 9)
-- Any form of active probing, network connection, or mail-server interaction
+- Any form of active probing, live capture (`-i`), network connection, or mail-server interaction
 
 ## Design Principles
 

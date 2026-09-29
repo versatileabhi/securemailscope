@@ -121,3 +121,52 @@ def job_dir(job_id: str, runtime_base: Path | None = None) -> Path:
     ensure_within_runtime(target, root)
     return target
 
+
+def ensure_within_directory(candidate: Path | str, parent: Path | str) -> Path:
+    """Ensure that *candidate* resolves to a location strictly within *parent*.
+
+    Args:
+        candidate: Target path to test.
+        parent: Boundary directory path.
+
+    Returns:
+        The resolved candidate Path.
+
+    Raises:
+        UnsafePathError: If candidate is not within parent.
+    """
+    resolved_candidate = Path(candidate).resolve()
+    resolved_parent = Path(parent).resolve()
+    try:
+        resolved_candidate.relative_to(resolved_parent)
+    except ValueError as exc:
+        from securemailscope.exceptions import UnsafePathError
+
+        raise UnsafePathError(
+            f"Path '{resolved_candidate}' is outside '{resolved_parent}'."
+        ) from exc
+    return resolved_candidate
+
+
+def zeek_logs_root(runtime_base: Path | None = None) -> Path:
+    """Return the base directory path for Zeek output logs.
+
+    Path format: runtime/zeek_logs
+    """
+    root = runtime_root(runtime_base)
+    return (root / "zeek_logs").resolve()
+
+
+def job_zeek_log_dir(job_id: str, runtime_base: Path | None = None) -> Path:
+    """Return the isolated directory path for Zeek logs for a specific job ID.
+
+    Path format: runtime/zeek_logs/<job_id>
+    """
+    root = runtime_root(runtime_base)
+    base_logs = zeek_logs_root(root)
+    target = (base_logs / job_id).resolve()
+    ensure_within_directory(target, base_logs)
+    ensure_within_runtime(target, root)
+    return target
+
+

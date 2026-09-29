@@ -45,3 +45,27 @@ class EvidenceIntegrityError(SecureMailScopeError):
 class EvidenceStagingError(SecureMailScopeError):
     """Raised when staging or metadata persistence fails during ingestion."""
 
+
+# Phase 2 Zeek Runner Exceptions
+
+
+class InvalidEvidenceReferenceError(SecureMailScopeError):
+    """Raised when an invalid or non-existent evidence record is passed to a runner."""
+
+
+class ZeekError(SecureMailScopeError):
+    """Base exception for Zeek discovery, configuration, and execution errors."""
+
+
+class ZeekNotAvailableError(ZeekError):
+    """Raised when Zeek is required but not found on the local system."""
+
+
+class ZeekExecutionError(ZeekError):
+    """Raised when offline Zeek execution fails."""
+
+
+class ZeekExecutionTimeoutError(ZeekExecutionError):
+    """Raised when offline Zeek execution exceeds the configured timeout."""
+
+

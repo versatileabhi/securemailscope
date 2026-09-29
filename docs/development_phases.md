@@ -69,6 +69,8 @@
 - Output logs are placed in `runtime/zeek_logs/<job-id>/`.
 - Pytest tests cover availability check and (mocked) runner invocation.
 
+**Status:** Complete (Verified: 65 tests pass, ruff clean, discovery and offline runner implemented, no log parsing).
+
 ---
 
 ## Phase 3: Zeek JSON-Log Readers and Canonical Session Schema
