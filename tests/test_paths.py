@@ -91,3 +91,41 @@ def test_ensure_runtime_directories_is_idempotent(tmp_path: Path) -> None:
     expected = {"uploads", "jobs", "zeek_logs", "reports"}
     created = {d.name for d in tmp_path.iterdir() if d.is_dir()}
     assert expected == created
+
+
+def test_runtime_root_custom_and_default(tmp_path: Path) -> None:
+    """runtime_root returns default or custom base."""
+    from securemailscope.paths import runtime_root
+
+    assert runtime_root(tmp_path) == tmp_path.resolve()
+    assert runtime_root().is_absolute()
+
+
+def test_ensure_within_runtime_valid(tmp_path: Path) -> None:
+    """ensure_within_runtime allows paths inside runtime base."""
+    from securemailscope.paths import ensure_within_runtime
+
+    child = tmp_path / "uploads" / "job_1"
+    assert ensure_within_runtime(child, runtime_base=tmp_path) == child.resolve()
+
+
+def test_ensure_within_runtime_rejects_outside(tmp_path: Path) -> None:
+    """ensure_within_runtime raises UnsafePathError for paths outside runtime base."""
+    from securemailscope.exceptions import UnsafePathError
+    from securemailscope.paths import ensure_within_runtime
+
+    outside = tmp_path.parent / "outside.pcap"
+    with pytest.raises(UnsafePathError):
+        ensure_within_runtime(outside, runtime_base=tmp_path)
+
+
+def test_job_upload_and_job_dir_helpers(tmp_path: Path) -> None:
+    """job_upload_dir and job_dir return paths inside runtime base."""
+    from securemailscope.paths import job_dir, job_upload_dir
+
+    up_dir = job_upload_dir("job_test_123", runtime_base=tmp_path)
+    j_dir = job_dir("job_test_123", runtime_base=tmp_path)
+
+    assert up_dir == tmp_path.resolve() / "uploads" / "job_test_123"
+    assert j_dir == tmp_path.resolve() / "jobs" / "job_test_123"
+

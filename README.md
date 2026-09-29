@@ -2,24 +2,32 @@
 
 **AI-Assisted Cryptographic Security Posture Assessment for Secure Email Communications**
 
-> **Current State: Phase 0 — Foundation Only.**
+> **Current State: Phase 1 — Local Input Validation & SHA-256 Evidence Hashing.**
 
 ## What This Is
 
 SecureMailScope is an offline, passive, evidence-linked cryptographic security posture assessment tool for SMTP, IMAP, and POP3 traffic captured in PCAP/PCAPNG files.
 
+### What Is Implemented (Phase 1)
+
+- Local candidate file validation (`.pcap`, `.pcapng` case-insensitive, non-empty, path safety, and file size limits).
+- Chunked SHA-256 evidence hashing without whole-file memory loading.
+- Collision-resistant unique job ID generation (`job_YYYYMMDDTHHMMSSZ_<uuid>`).
+- Safe local staging copy into `runtime/uploads/<job_id>/` with source-to-staged hash integrity verification.
+- Evidence metadata record generation and atomic JSON write into `runtime/jobs/<job_id>/metadata.json`.
+
 ## What Is NOT Implemented Yet
 
 The following features are planned for future phases and are **not present** in the current codebase:
 
-- PCAP/PCAPNG parsing or ingestion
-- Zeek integration or offline runner
-- Protocol extraction (SMTP, IMAP, POP3, STARTTLS, TLS, x509)
-- Deterministic RFC/policy rule engine
-- Cryptographic posture scoring
-- ML anomaly ranking
-- JSON, HTML, or PDF report generation
-- Local dashboard (Flask)
+- Internal PCAP/PCAPNG frame parsing or packet inspection
+- Zeek integration or offline runner (Phase 2)
+- Protocol extraction (SMTP, IMAP, POP3, STARTTLS, TLS, x509) (Phase 3–4)
+- Deterministic RFC/policy rule engine (Phase 5)
+- Cryptographic posture scoring (Phase 6)
+- ML anomaly ranking (Phase 7)
+- JSON, HTML, or PDF report generation (Phase 8)
+- Local dashboard (Flask) (Phase 9)
 - Any form of active probing, network connection, or mail-server interaction
 
 ## Design Principles

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- Phase 1: Local capture file validation (`.pcap`, `.pcapng`), chunked SHA-256 evidence hashing, safe staging into `runtime/uploads/<job_id>/`, and atomic metadata JSON generation into `runtime/jobs/<job_id>/metadata.json`.
+- Typed exception hierarchy for ingestion validation, integrity, containment, and staging errors.
+- Structured dataclass schema for `EvidenceMetadata` records (`v1.0`).
+- Documentation: `docs/phase_1_evidence_ingestion.md`.
+
 ## [0.1.0] — 2026-09-29
 
 ### Added

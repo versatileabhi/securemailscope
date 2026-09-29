@@ -1,6 +1,16 @@
 """
 SecureMailScope — Schemas sub-package.
 
-Phase 0: placeholder only. Pydantic/dataclass schemas for canonical
-session records will be defined in Phase 3.
+Contains structured dataclass schemas for evidence metadata and (in Phase 3+)
+canonical session records.
 """
+
+from securemailscope.schemas.evidence import (
+    PHASE_1_LIMITATION_TEXT,
+    EvidenceMetadata,
+)
+
+__all__ = [
+    "EvidenceMetadata",
+    "PHASE_1_LIMITATION_TEXT",
+]

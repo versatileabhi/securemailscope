@@ -62,3 +62,62 @@ def ensure_runtime_directories(base: Path | None = None) -> None:
     root = base if base is not None else runtime_dir()
     for subdir in ("uploads", "jobs", "zeek_logs", "reports"):
         (root / subdir).mkdir(parents=True, exist_ok=True)
+
+
+def runtime_root(base: Path | None = None) -> Path:
+    """Return the resolved runtime root path, optionally overridden by *base*."""
+    if base is not None:
+        return Path(base).resolve()
+    return runtime_dir().resolve()
+
+
+def ensure_within_runtime(
+    path: Path | str,
+    runtime_base: Path | None = None,
+) -> Path:
+    """Ensure that *path* resolves to a location strictly within the runtime root.
+
+    Args:
+        path: Path to check.
+        runtime_base: Optional base runtime directory override.
+
+    Returns:
+        The resolved Path if it is contained within the runtime root.
+
+    Raises:
+        UnsafePathError: If *path* is not within the runtime root.
+    """
+    root = runtime_root(runtime_base)
+    resolved = Path(path).resolve()
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        from securemailscope.exceptions import UnsafePathError
+
+        raise UnsafePathError(
+            f"Path '{resolved}' is outside the allowed runtime root '{root}'."
+        ) from exc
+    return resolved
+
+
+def job_upload_dir(job_id: str, runtime_base: Path | None = None) -> Path:
+    """Return the directory path for staging uploads for a specific job ID.
+
+    Path format: runtime/uploads/<job_id>
+    """
+    root = runtime_root(runtime_base)
+    target = (root / "uploads" / job_id).resolve()
+    ensure_within_runtime(target, root)
+    return target
+
+
+def job_dir(job_id: str, runtime_base: Path | None = None) -> Path:
+    """Return the directory path for job metadata and artifacts for a job ID.
+
+    Path format: runtime/jobs/<job_id>
+    """
+    root = runtime_root(runtime_base)
+    target = (root / "jobs" / job_id).resolve()
+    ensure_within_runtime(target, root)
+    return target
+

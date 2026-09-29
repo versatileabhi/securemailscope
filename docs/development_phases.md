@@ -47,6 +47,8 @@
 - No network calls are made during ingestion.
 - Pytest tests cover all acceptance criteria.
 
+**Status:** Complete (Verified: 48 tests pass, ruff clean, chunked SHA-256 and atomic metadata staging implemented).
+
 ---
 
 ## Phase 2: Zeek Availability Check and Offline Runner
