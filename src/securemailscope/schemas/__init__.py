@@ -2,12 +2,24 @@
 SecureMailScope — Schemas sub-package.
 
 Contains structured dataclass schemas for evidence metadata (Phase 1),
-Zeek execution results (Phase 2), and canonical session records (Phase 3).
+Zeek execution results (Phase 2), canonical session records (Phase 3),
+and protocol observations (Phase 4).
 """
 
 from securemailscope.schemas.evidence import (
     PHASE_1_LIMITATION_TEXT,
     EvidenceMetadata,
+)
+from securemailscope.schemas.observation import (
+    PHASE_4_LIMITATIONS,
+    CertificateObservation,
+    ImapObservation,
+    ObservationResult,
+    Pop3Observation,
+    SessionObservation,
+    SmtpObservation,
+    StarttlsObservation,
+    TlsObservation,
 )
 from securemailscope.schemas.session import (
     PHASE_3_LIMITATIONS,
@@ -38,4 +50,14 @@ __all__ = [
     "ParseWarning",
     "SmtpEnrichment",
     "SslEnrichment",
+    # Phase 4
+    "CertificateObservation",
+    "ImapObservation",
+    "ObservationResult",
+    "PHASE_4_LIMITATIONS",
+    "Pop3Observation",
+    "SessionObservation",
+    "SmtpObservation",
+    "StarttlsObservation",
+    "TlsObservation",
 ]
