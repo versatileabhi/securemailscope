@@ -86,6 +86,16 @@ def test_status_contains_ml_not_implemented() -> None:
     assert "ML Model: not implemented" in result.stdout
 
 
+def test_status_contains_current_phase() -> None:
+    """Status output must contain 'Current Phase: 3'."""
+    result = subprocess.run(
+        [sys.executable, "-m", "securemailscope", "status"],
+        capture_output=True,
+        text=True,
+    )
+    assert "Current Phase: 3" in result.stdout
+
+
 def test_main_status_returns_zero() -> None:
     """main(['status']) must return 0 when called programmatically."""
     assert main(["status"]) == 0

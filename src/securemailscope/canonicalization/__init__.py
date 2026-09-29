@@ -1,6 +1,14 @@
 """
 SecureMailScope — Canonicalization sub-package.
 
-Phase 0: placeholder only. Zeek JSON-log readers and canonical
-session records will be implemented in Phase 3.
+Provides Zeek JSON-log reading and canonical session record correlation
+implemented in Phase 3.
 """
+
+from securemailscope.canonicalization.correlator import correlate_zeek_logs
+from securemailscope.schemas.session import CorrelationResult
+
+__all__ = [
+    "correlate_zeek_logs",
+    "CorrelationResult",
+]

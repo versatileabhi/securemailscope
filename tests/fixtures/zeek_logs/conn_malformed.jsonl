@@ -1,0 +1,4 @@
+{"uid": "ValidRecord001", "ts": 1727520010.0, "proto": "tcp", "service": "smtp", "conn_state": "SF"}
+this is not valid json {{{
+["array", "not", "object"]
+{"proto": "tcp", "conn_state": "SF"}

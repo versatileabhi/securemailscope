@@ -7,7 +7,7 @@
 - **Primary telemetry engine:** Zeek (planned, Phase 2+).
 - **Primary language:** Python 3.11+.
 - **Deployment model:** Local/offline only.
-- **Current phase:** Phase 2.
+- **Current phase:** Phase 3.
 - **Current status:** Complete.
 
 ## Non-Negotiable Architecture Rules
@@ -46,25 +46,34 @@
   - [x] `ZeekRunResult` schema with `to_dict`, `to_json`, `from_dict`, and embedded `PHASE_2_LIMITATIONS`
   - [x] Full Phase 2 test suite passing (65 total tests across project) — all mocked, no real Zeek binary required
   - [x] Phase 2 boundary strictly enforced: no log parsing, no protocol extraction, no report generation
+- [x] Phase 3 complete: Zeek JSON-Log Readers and Canonical Session Schema
+  - [x] Pure read-only JSONL log reader (`read_jsonl_log`) with non-fatal `ParseWarning` collection
+  - [x] Canonical session schema (`CanonicalSession`, `SmtpEnrichment`, `SslEnrichment`, `CertificateRecord`, `CorrelationResult`)
+  - [x] Multi-log correlator (`correlate_zeek_logs`) joining `conn.log`, `smtp.log`, `ssl.log`, and `x509.log`
+  - [x] Standard Zeek join semantics: `conn.uid → smtp.uid`, `conn.uid → ssl.uid`, `ssl.cert_chain_fuids → x509.fuid`
+  - [x] Unmatched records preserved in `unmatched_smtp_uids`, `unmatched_ssl_uids`, `unmatched_cert_fuids`
+  - [x] Missing optional logs handled gracefully with non-fatal warnings
+  - [x] Path confinement via `ensure_within_runtime` with `UnsafePathError`
+  - [x] Lossless JSON serialization/deserialization (`to_dict`, `to_json`, `from_dict`)
+  - [x] Full Phase 3 test suite passing (99 total tests across project) — 34 new Phase 3 tests
 
 ## Current Work
 
-- **Active task:** None. Phase 2 implementation and verification are complete.
-- **Phase 2 status:** All acceptance criteria met. Unit tests use deterministic mocks; no real Zeek installation is required for the test suite.
-- **Remaining future work:** Real Zeek installation and live-PCAP integration validation remain as controlled future work outside the current unit-test boundary.
+- **Active task:** None. Phase 3 implementation and verification are complete.
+- **Phase 3 status:** All acceptance criteria met. Unit tests pass with 100% clean linter.
+- **Remaining future work:** Phase 4 protocol observation extraction (SMTP, IMAP, POP3, TLS, and certificates).
 - **Blockers:** None.
 - **Decisions made:**
-  - Standard library `dataclass` used for `EvidenceMetadata` (`v1.0`) and `ZeekRunResult` (`v1.0`).
-  - Standard library `hashlib.sha256` with 1 MiB chunked reads (`HASH_CHUNK_SIZE_BYTES = 1024 * 1024`).
-  - Absolute source paths strictly excluded from metadata records (`source_path_disclosed = False`).
-  - Atomic rename (`Path.replace`) used for metadata persistence.
-  - Zeek subprocess invoked with `shell=False` as an explicit argument tuple.
-  - `-C` checksum-override flag omitted by default; requires explicit analyst opt-in.
-  - Log directory created only after `discover_zeek` confirms availability, preventing orphaned directories.
+  - Standard library `dataclass` used for all Phase 3 models.
+  - Non-raising log reader returns `(records, warnings)` tuple.
+  - SmtpEnrichment maps Zeek `"from"` field to Python `from_`, emitted back as `"from"` in JSON.
+  - Certificate join requires `ssl.cert_chain_fuids → x509.fuid`; direct `conn.uid → x509` is never performed.
+  - Sessions deterministically sorted by `(ts or 0.0, uid)` ascending.
+  - Absolute filesystem paths excluded from all exported session records.
 
 ## Next Allowed Task
 
-Await explicit approval before starting **Phase 3** — Zeek JSON-log readers and canonical session schema.
+Await explicit approval before starting **Phase 4** — SMTP/IMAP/POP3, STARTTLS, TLS, and Certificate Observation Extraction.
 
 ## Commands to Verify Current State
 
@@ -79,8 +88,7 @@ python -m securemailscope status
 # Output: offline mode, all components not implemented (Exit code: 0)
 
 python -m pytest
-# Output: 65 passed in 2.23s (Exit code: 0)
-# Note: Phase 2 tests use mocks; no real Zeek binary is required.
+# Output: 99 passed in 3.14s (Exit code: 0)
 
 python -m ruff check .
 # Output: All checks passed! (Exit code: 0)
@@ -90,9 +98,10 @@ python -m ruff check .
 
 - Phase 1 validates file-level eligibility only; it does not verify PCAP/PCAPNG internal frame structure or parse packet contents.
 - Phase 2 discovers and invokes Zeek only; no real Zeek installation or real-PCAP integration test has been executed against this codebase.
-- Zeek log files produced by Phase 2 execution are not parsed, deserialized, or inspected in Phase 2.
-- No SMTP, IMAP, POP3, STARTTLS, TLS, or X.509 field extraction is performed in Phase 2.
-- No canonical session schema, rule engine, coverage-aware scoring, ML anomaly ranking, report generation, or local dashboard exists yet.
+- Phase 3 reads and correlates Zeek JSON logs only; no detection rules, risk scoring, ML ranking, reporting, or dashboard are implemented.
+- X.509 certificate records are associated via `ssl.cert_chain_fuids → x509.fuid`; direct `conn.uid → x509` association is not available in standard Zeek output.
+- `smtp.log` and `ssl.log` enrichment is optional; absent logs produce `None` enrichment fields, not errors.
+- Phase 3 does not parse PCAP files or invoke Zeek; it reads existing log output only.
 - No empirical performance claims or benchmark numbers.
 
 ## Handoff Instructions
@@ -111,3 +120,4 @@ python -m ruff check .
 | 2026-09-29 | 0 | Resumed Batch 2 after quota interruption; added config templates and completed Phase 0 verification | CLI version/status ok; pytest (22 passed); ruff check (passed) | Complete |
 | 2026-09-29 | 1 | Local capture validation, chunked SHA-256, safe staging, and evidence metadata generation | pytest (48 passed); ruff check (passed); CLI ok | Complete |
 | 2026-09-29 | 2 | Finalized Phase 2 Zeek availability check and offline runner after interrupted WIP checkpoint | pytest (65 passed); ruff check (passed) | Complete |
+| 2026-09-29 | 3 | Zeek JSON-log readers, canonical session schema, and correlator pipeline | pytest (99 passed); ruff check (passed); CLI ok | Complete |

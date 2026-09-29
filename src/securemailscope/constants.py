@@ -19,4 +19,4 @@ DEFAULT_ATTRIBUTION_STATE: str = "not_proven"
 VALID_COVERAGE_STATES: tuple[str, ...] = ("full", "partial", "insufficient")
 
 # Current development phase
-CURRENT_PHASE: int = 0
+CURRENT_PHASE: int = 3

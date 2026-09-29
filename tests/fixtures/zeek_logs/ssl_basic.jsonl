@@ -1,0 +1,1 @@
+{"uid": "Dj8Bz4yLgGbRwJoKm", "ts": 1727520005.5, "version": "TLSv12", "cipher": "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "curve": "secp256r1", "server_name": "mail.target.org", "resumed": false, "established": true, "cert_chain_fuids": ["FcertChain001"], "client_cert_chain_fuids": [], "validation_status": "ok"}

@@ -1,0 +1,1 @@
+{"uid": "CiA7yB3xkFaQvInJl", "ts": 1727520001.0, "trans_depth": 1, "helo": "mail.example.com", "mailfrom": "alice@example.com", "rcptto": ["bob@target.org"], "from": "Alice Smith <alice@example.com>", "to": ["bob@target.org"], "msg_id": "<abc123@example.com>", "subject": "Test message", "tls": true}

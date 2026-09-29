@@ -69,3 +69,14 @@ class ZeekExecutionTimeoutError(ZeekExecutionError):
     """Raised when offline Zeek execution exceeds the configured timeout."""
 
 
+# Phase 3 Log Parsing Exceptions
+
+
+class ZeekLogParseError(SecureMailScopeError):
+    """Raised when a Zeek JSON log file cannot be opened or is fatally unreadable.
+
+    Note: Malformed individual lines are represented as ParseWarning objects
+    and never raise this exception. This exception is reserved for
+    unrecoverable file-level failures such as permission errors.
+    """
+

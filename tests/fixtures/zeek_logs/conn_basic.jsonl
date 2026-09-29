@@ -1,0 +1,2 @@
+{"uid": "CiA7yB3xkFaQvInJl", "ts": 1727520000.0, "id.orig_h": "192.168.1.10", "id.orig_p": 54321, "id.resp_h": "203.0.113.25", "id.resp_p": 587, "proto": "tcp", "service": "smtp", "duration": 1.234, "orig_bytes": 512, "resp_bytes": 1024, "conn_state": "SF", "missed_bytes": 0}
+{"uid": "Dj8Bz4yLgGbRwJoKm", "ts": 1727520005.0, "id.orig_h": "192.168.1.10", "id.orig_p": 54322, "id.resp_h": "203.0.113.25", "id.resp_p": 443, "proto": "tcp", "service": "ssl", "duration": 3.789, "orig_bytes": 2048, "resp_bytes": 8192, "conn_state": "SF", "missed_bytes": 0}
