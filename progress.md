@@ -7,7 +7,7 @@
 - **Primary telemetry engine:** Zeek (planned, Phase 2+).
 - **Primary language:** Python 3.11+.
 - **Deployment model:** Local/offline only.
-- **Current phase:** Phase 1.
+- **Current phase:** Phase 2.
 - **Current status:** Complete.
 
 ## Non-Negotiable Architecture Rules
@@ -24,32 +24,47 @@
 ## Completed Work
 
 - [x] Phase 0 complete: Foundation & Continuity System
-- [x] Repository scaffold created
-- [x] Package/CLI foundation working
-- [x] Phase 0 test suite passing (22 tests)
-- [x] Documentation & configuration templates created
-- [x] Git hygiene configured
+  - [x] Repository scaffold created
+  - [x] Package/CLI foundation working
+  - [x] Phase 0 test suite passing (22 tests)
+  - [x] Documentation & configuration templates created
+  - [x] Git hygiene configured
 - [x] Phase 1 complete: Local Input Validation & SHA-256 Evidence Hashing
-- [x] File candidate validation (`.pcap`, `.pcapng`, case-insensitive, size limits, empty check)
-- [x] Chunked SHA-256 hashing without whole-file memory loading
-- [x] Safe local staging under `runtime/uploads/<job_id>/` with hash integrity verification
-- [x] Evidence metadata JSON record generation (`runtime/jobs/<job_id>/metadata.json`) with atomic write
-- [x] Path containment verification (`ensure_within_runtime`) and traversal prevention
-- [x] Full Phase 1 test suite passing (48 total tests across project)
+  - [x] File candidate validation (`.pcap`, `.pcapng`, case-insensitive, size limits, empty check)
+  - [x] Chunked SHA-256 hashing without whole-file memory loading
+  - [x] Safe local staging under `runtime/uploads/<job_id>/` with hash integrity verification
+  - [x] Evidence metadata JSON record generation (`runtime/jobs/<job_id>/metadata.json`) with atomic write
+  - [x] Path containment verification (`ensure_within_runtime`) and traversal prevention
+  - [x] Full Phase 1 test suite passing (48 total tests across project)
+- [x] Phase 2 complete: Zeek Availability Check & Offline Runner
+  - [x] Local Zeek binary discovery via `shutil.which` and optional configured path
+  - [x] Safe `zeek --version` validation with timeout and OSError handling (`ZeekAvailability`)
+  - [x] Offline-only command construction (`zeek -r <pcap> Log::default_logdir=<dir>`) — no `-i` live capture flag
+  - [x] Per-job isolated Zeek log directory (`runtime/zeek_logs/<job_id>/`) created only after Zeek confirmed available
+  - [x] `subprocess.run` invoked with `shell=False` and explicit argument list — no shell string interpolation
+  - [x] Five discrete execution statuses: `completed`, `failed`, `timed_out`, `zeek_unavailable`, `invalid_evidence_reference`
+  - [x] `ZeekRunResult` schema with `to_dict`, `to_json`, `from_dict`, and embedded `PHASE_2_LIMITATIONS`
+  - [x] Full Phase 2 test suite passing (65 total tests across project) — all mocked, no real Zeek binary required
+  - [x] Phase 2 boundary strictly enforced: no log parsing, no protocol extraction, no report generation
 
 ## Current Work
 
-- **Active task:** Phase 1 complete; awaiting explicit approval for Phase 2.
+- **Active task:** None. Phase 2 implementation and verification are complete.
+- **Phase 2 status:** All acceptance criteria met. Unit tests use deterministic mocks; no real Zeek installation is required for the test suite.
+- **Remaining future work:** Real Zeek installation and live-PCAP integration validation remain as controlled future work outside the current unit-test boundary.
 - **Blockers:** None.
 - **Decisions made:**
-  - Standard library `dataclass` used for `EvidenceMetadata` (`v1.0`).
+  - Standard library `dataclass` used for `EvidenceMetadata` (`v1.0`) and `ZeekRunResult` (`v1.0`).
   - Standard library `hashlib.sha256` with 1 MiB chunked reads (`HASH_CHUNK_SIZE_BYTES = 1024 * 1024`).
   - Absolute source paths strictly excluded from metadata records (`source_path_disclosed = False`).
   - Atomic rename (`Path.replace`) used for metadata persistence.
+  - Zeek subprocess invoked with `shell=False` as an explicit argument tuple.
+  - `-C` checksum-override flag omitted by default; requires explicit analyst opt-in.
+  - Log directory created only after `discover_zeek` confirms availability, preventing orphaned directories.
 
 ## Next Allowed Task
 
-Await explicit approval before starting **Phase 2** — Zeek availability check and offline runner.
+Await explicit approval before starting **Phase 3** — Zeek JSON-log readers and canonical session schema.
 
 ## Commands to Verify Current State
 
@@ -64,7 +79,8 @@ python -m securemailscope status
 # Output: offline mode, all components not implemented (Exit code: 0)
 
 python -m pytest
-# Output: 48 passed in 2.05s (Exit code: 0)
+# Output: 65 passed in 2.23s (Exit code: 0)
+# Note: Phase 2 tests use mocks; no real Zeek binary is required.
 
 python -m ruff check .
 # Output: All checks passed! (Exit code: 0)
@@ -73,9 +89,10 @@ python -m ruff check .
 ## Known Limitations
 
 - Phase 1 validates file-level eligibility only; it does not verify PCAP/PCAPNG internal frame structure or parse packet contents.
-- No Zeek installation or runner yet (Phase 2).
-- No protocol parsing or observation extraction yet (Phase 3–4).
-- No deterministic rule engine, scoring, ML, reports, or dashboard yet.
+- Phase 2 discovers and invokes Zeek only; no real Zeek installation or real-PCAP integration test has been executed against this codebase.
+- Zeek log files produced by Phase 2 execution are not parsed, deserialized, or inspected in Phase 2.
+- No SMTP, IMAP, POP3, STARTTLS, TLS, or X.509 field extraction is performed in Phase 2.
+- No canonical session schema, rule engine, coverage-aware scoring, ML anomaly ranking, report generation, or local dashboard exists yet.
 - No empirical performance claims or benchmark numbers.
 
 ## Handoff Instructions
@@ -93,3 +110,4 @@ python -m ruff check .
 | 2026-09-29 | 0 | Project initialized — scaffold, package, CLI, tests, docs | Pending | In Progress |
 | 2026-09-29 | 0 | Resumed Batch 2 after quota interruption; added config templates and completed Phase 0 verification | CLI version/status ok; pytest (22 passed); ruff check (passed) | Complete |
 | 2026-09-29 | 1 | Local capture validation, chunked SHA-256, safe staging, and evidence metadata generation | pytest (48 passed); ruff check (passed); CLI ok | Complete |
+| 2026-09-29 | 2 | Finalized Phase 2 Zeek availability check and offline runner after interrupted WIP checkpoint | pytest (65 passed); ruff check (passed) | Complete |
